@@ -16,18 +16,22 @@ class Settings:
     momentum = 0
     seed = 42
     shuffle=True
-    weights_init = "rand_norm"
+    weights_init = "trunc_norm"
     optimizer = "sgd"
     hidden_n =[300, 200]
-    l2 = 0.0            # -L2 weight decay and dropout cannot be run at the same time (usually 0.0001)
-    dropout = False     # The code will set it to True if dropoutRate > 0
-    drop_prob1= 0
-    drop_prob2= 0
+    l2 = 0             # -L2 weight decay and dropout cannot be run at the same time (usually 0.0001)
+    dropout = True     # The code will set it to True if dropoutRate > 0
+    drop_prob1= 0.5
+    drop_prob2= 0.5
 
     @staticmethod
     def start():
         Settings.dateString = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
         Settings.validateHyperparameters()
+        if not os.path.exists(Settings.pathOutput):
+            os.makedirs(Settings.pathOutput)
+        if not os.path.exists(Settings.pathSaveNet):
+            os.makedirs(Settings.pathSaveNet)
         Settings.pathOutput = Settings.setSettingPath(Settings.pathOutput)
         Settings.pathSaveNet = Settings.setSettingPath(Settings.pathSaveNet)
         Settings.printHyperparameters()
@@ -45,7 +49,7 @@ class Settings:
         if Settings.optimizer != "sgd_mo" and Settings.optimizer != "sgd" and Settings.optimizer != "adam":
             sys.exit("No an optimizer choice, select from 'sgd_mo', 'sgd' or 'adam'")
 
-        if (Settings.optimizer == "sgd"and Settings.momentum != 0) or (Settings.optimizer == "adam"and Settings.momentum != 0):
+        if (Settings.optimizer == "sgd"and Settings.momentum != 0) or (Settings.optimizer == "adam" and Settings.momentum != 0):
             sys.exit("Zero momentum or change the optimizer to sgd_mo")
 
     @staticmethod

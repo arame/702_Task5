@@ -11,6 +11,7 @@ import requests
 import pickle
 import sys
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import os
 from settings import Settings
 from neural_net import ANN2L
@@ -92,18 +93,19 @@ def main():
     fig.savefig(Settings.pathOutput + "CostEpoch.png", bbox_inches='tight', dpi=150)
 
     y_test_pred = ann.predict(X_test)
-    #fig = plt.figure(figsize=(10, 10))
+
     # Confusion Matrix
-    cm = ann.conf_matrix(y_test, y_test_pred)
+
+    cm, cm_acc = ann.conf_matrix(y_test, y_test_pred)
     print(cm)
-    sns.set(rc={'figure.figsize':(11,8)})
-    sns.set(font_scale=1.4) # for label size
-    fig= plt.figure(figsize=(10,5))
-    sns.heatmap(cm, annot=True, annot_kws={"size": 10}, fmt='g') # font size
-    plt.title('Confusion matrix')
+    mpl.style.use('seaborn')
+    fig= plt.figure()
+    plt.clf()
+    sns.heatmap(cm, annot=True,  fmt='d')   # font size
+    plt.title('Confusion matrix with accuracy %.2f%%' % (cm_acc*100))
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    fig.savefig(Settings.pathOutput + "Confusion.png", bbox_inches='tight', dpi=150)
+    fig.savefig(Settings.pathOutput + "ConfusionMatrix.png", bbox_inches='tight', dpi=150)
 
     filepath = Settings.pathOutput + "digit_metrics.txt"
     file = open(filepath, "w+")

@@ -125,13 +125,13 @@ class ANN2L(object):
         # iterate over training epochs
  
         t= 0 # time -step for adam optimizer
-       
+        lr = Settings.lr
         for i in range(Settings.epochs):
             if  i == Settings.schedule:
                 for i in range(Settings.schedule, Settings.epochs, Settings.schedule):
-                    Settings.lr = Settings.lr*Settings.lr_d
+                    lr = lr*Settings.lr_d
             
-                    if Settings.lr <= 0.00001:
+                    if lr <= 0.00001:
                         break
             
             # iterate over minibatches
@@ -197,14 +197,14 @@ class ANN2L(object):
                 t+=1  # Increase time-step before Adam
                 if Settings.optimizer == "sgd_mo":
                     
-                    self.vb_h1 = Settings.momentum*self.vb_h1 - Settings.lr * delta_b_h1
-                    self.vw_h1 = Settings.momentum*self.vw_h1 - Settings.lr * delta_w_h1
+                    self.vb_h1 = Settings.momentum*self.vb_h1 - lr * delta_b_h1
+                    self.vw_h1 = Settings.momentum*self.vw_h1 - lr * delta_w_h1
 
-                    self.vb_h2 = Settings.momentum*self.vb_h2 - Settings.lr * delta_b_h2
-                    self.vw_h2 = Settings.momentum*self.vw_h2 - Settings.lr * delta_w_h2
+                    self.vb_h2 = Settings.momentum*self.vb_h2 - lr * delta_b_h2
+                    self.vw_h2 = Settings.momentum*self.vw_h2 - lr * delta_w_h2
 
-                    self.vb_out = Settings.momentum*self.vb_out - Settings.lr * delta_b_out
-                    self.vw_out = Settings.momentum*self.vw_out - Settings.lr * delta_w_out
+                    self.vb_out = Settings.momentum*self.vb_out - lr * delta_b_out
+                    self.vw_out = Settings.momentum*self.vw_out - lr * delta_w_out
                     
                     self.w_h1 += self.vw_h1
                     self.b_h1 += self.vb_h1
@@ -215,14 +215,14 @@ class ANN2L(object):
 
                 if Settings.optimizer == "sgd":
                     
-                    self.w_h1 -= Settings.lr * delta_w_h1
-                    self.b_h1 -= Settings.lr * delta_b_h1
+                    self.w_h1 -= lr * delta_w_h1
+                    self.b_h1 -= lr * delta_b_h1
 
-                    self.w_h2 -= Settings.lr * delta_w_h2
-                    self.b_h2 -= Settings.lr * delta_b_h2
+                    self.w_h2 -= lr * delta_w_h2
+                    self.b_h2 -= lr * delta_b_h2
                       
-                    self.w_out -= Settings.lr * delta_w_out
-                    self.b_out -= Settings.lr * delta_b_out
+                    self.w_out -= lr * delta_w_out
+                    self.b_out -= lr * delta_b_out
                     
                 if Settings.optimizer == "adam":
                     """b1: decay for previous gradient, 
@@ -251,8 +251,8 @@ class ANN2L(object):
                     
                     # params update
        
-                    prop_wh1 = Settings.lr * self.vw_h1_c / (np.sqrt(self.sw_h1_c) + eps_sta)
-                    prop_bh1 = Settings.lr * self.vb_h1_c / (np.sqrt(self.sb_h1_c) + eps_sta)
+                    prop_wh1 = lr * self.vw_h1_c / (np.sqrt(self.sw_h1_c) + eps_sta)
+                    prop_bh1 = lr * self.vb_h1_c / (np.sqrt(self.sb_h1_c) + eps_sta)
    
                     self.w_h1-= prop_wh1
                     
@@ -277,8 +277,8 @@ class ANN2L(object):
                     
  
                     # params update
-                    prop_wh2 = Settings.lr * self.vw_h2_c / (np.sqrt(self.sw_h2_c) + eps_sta)
-                    prop_bh2 = Settings.lr * self.vb_h2_c / (np.sqrt(self.sb_h2_c) + eps_sta)
+                    prop_wh2 = lr * self.vw_h2_c / (np.sqrt(self.sw_h2_c) + eps_sta)
+                    prop_bh2 = lr * self.vb_h2_c / (np.sqrt(self.sb_h2_c) + eps_sta)
 
                     self.w_h2-= prop_wh2
                     self.b_h2-= prop_bh2
@@ -306,8 +306,8 @@ class ANN2L(object):
                     self.sb_out_c = self.sb_out / (1. - beta2 ** t)
                     
                      # params update
-                    prop_w_out = Settings.lr * self.vw_out_c / (np.sqrt(self.sw_out_c) + eps_sta)
-                    prop_b_out = Settings.lr * self.vb_out_c / (np.sqrt(self.sb_out_c) + eps_sta)
+                    prop_w_out = lr * self.vw_out_c / (np.sqrt(self.sw_out_c) + eps_sta)
+                    prop_b_out = lr * self.vb_out_c / (np.sqrt(self.sb_out_c) + eps_sta)
 
                     self.w_out-= prop_w_out
                     self.b_out-= prop_b_out
@@ -346,7 +346,7 @@ class ANN2L(object):
 
             print('%0*d/%d | Train cost: %.2f ''| Train/Valid Acc.: %.2f%%/%.2f%% '
                               '|Test Acc.: %.2f%%''| L rate.: %.5f '%
-                            (epoch_strlen, i+1, Settings.epochs, cost, train_acc*100, valid_acc*100, test_acc*100, Settings.lr))
+                            (epoch_strlen, i+1, Settings.epochs, cost, train_acc*100, valid_acc*100, test_acc*100, lr))
 
             self.eval_['cost'].append(cost)
             self.eval_['train_acc'].append(train_acc)
@@ -368,7 +368,13 @@ class ANN2L(object):
             pred = y_pred[i]
             cm[target, pred] += 1
         cm=(np.array(cm))
-        return cm  
+        acc = self.cm_accuracy(cm)
+        return cm, acc  
+
+    def cm_accuracy(self, confusion_matrix):
+        diagonal_sum = confusion_matrix.trace()
+        sum_of_all_elements = confusion_matrix.sum()
+        return diagonal_sum / sum_of_all_elements 
             
     def precision(self, y, conf_matrix):
         col = conf_matrix[:, y]
