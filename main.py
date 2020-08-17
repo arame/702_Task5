@@ -51,14 +51,24 @@ def main():
     print(label)
 
     # Visualisation color 
-    fig1 = plt.figure(figsize=(10, 10))
-    fig, ax = plt.subplots(nrows=4, ncols=6, sharex=True, sharey=True,)
+    _rows = 4
+    _cols = 5
+    _size = _rows * _cols
+    fig, ax = plt.subplots(nrows=_rows, ncols=_cols, sharex=True, sharey=True,)
     ax = ax.flatten()
-    for i in range(24):
+    _labels = []
+    for i in range(_size):
         img = X_train[i].reshape(100,100)
+        lbl = y_train[i]
         ax[i].imshow(img)
-    fig1.savefig(Settings.pathOutput + "ImageBlock.png", bbox_inches='tight', dpi=150)
+        _labels.append(lbl)
+    fig.savefig(Settings.pathOutput + "EmotionImages.png", bbox_inches='tight', dpi=150)
 
+    ground_truth_filepath = Settings.pathOutput + "ground_truth6.txt"
+    ground_truth_file = open(ground_truth_filepath,"w+")
+    ground_truth_text = 'GroundTruth: ', ' '.join('%5s' % Settings.emotions[_labels[true_label]] for true_label in range(_size))
+    ground_truth_file.write(ground_truth_text[0] + ground_truth_text[1])
+    print(ground_truth_text)
     ann=ANN2L()
 
     ann.run(X_train, y_train, X_val, y_val, X_test, y_test)
@@ -95,14 +105,19 @@ def main():
     plt.xlabel('Predicted label')
     fig.savefig(Settings.pathOutput + "Confusion.png", bbox_inches='tight', dpi=150)
 
+    filepath = Settings.pathOutput + "digit_metrics.txt"
+    file = open(filepath, "w+")
+    Settings.outputLine(file, "* Digit metrics")
+    Settings.outputLine(file, "* ---------------")
     total_sample =0
     for i in range(len(Settings.emotions)):
         row_sum = np.sum(cm[i:i+1,:])
         
         total_sample = total_sample + row_sum
-        print('label: %.0f '' |  Precision: %.2f%%'' |  Recall: %.2f%%'' |  f1-score: %.2f%%'' |  support: %.0f' %
-            (i, ann.precision(i, cm), ann.recall(i, cm), ann.f1_score(ann.precision(i, cm),ann.recall(i, cm)),row_sum))
-    print("Total samples:", total_sample)
+        message = 'label: %.0f '' |  Precision: %.2f%%'' |  Recall: %.2f%%'' |  f1-score: %.2f%%'' |  support: %.0f' % (i, ann.precision(i, cm), ann.recall(i, cm), ann.f1_score(ann.precision(i, cm),ann.recall(i, cm)),row_sum)    
+        Settings.outputLine(file, message)
+    message = "Total samples:" + str(total_sample)
+    Settings.outputLine(file, message)
 
     miscl_image = X_test[y_test != y_test_pred][:24] # missclassified image
     correct_label = y_test[y_test != y_test_pred][:24]  # Correct label

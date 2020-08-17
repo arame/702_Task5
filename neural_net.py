@@ -26,7 +26,6 @@ class ANN2L(object):
         # step net input to hidden layer1
      
         z_h1 = np.dot(X, self.w_h1) + self.b_h1
-
         a_h1 = self._relu(z_h1)
         #Optional dropout
         if Settings.dropout== True:
@@ -345,11 +344,9 @@ class ANN2L(object):
                 print("Early stopping")
                 return self
 
-            sys.stderr.write('\r%0*d/%d | Train cost: %.2f ''| Train/Valid Acc.: %.2f%%/%.2f%% '
+            print('%0*d/%d | Train cost: %.2f ''| Train/Valid Acc.: %.2f%%/%.2f%% '
                               '|Test Acc.: %.2f%%''| L rate.: %.5f '%
-                            (epoch_strlen, i+1, Settings.epochs, cost, train_acc*100,
-                             valid_acc*100, test_acc*100, Settings.lr))
-            sys.stderr.flush()
+                            (epoch_strlen, i+1, Settings.epochs, cost, train_acc*100, valid_acc*100, test_acc*100, Settings.lr))
 
             self.eval_['cost'].append(cost)
             self.eval_['train_acc'].append(train_acc)

@@ -9,7 +9,7 @@ class Settings:
     emotions = ["neutral", "anger", "contempt", "disgust", "fear", "happy", "sadness", "surprise"]
     dateString = ""
     minibatch_size = 32
-    epochs = 150
+    epochs = 350
     lr = 0.005
     lr_d = 0.6
     schedule = 80
@@ -60,30 +60,31 @@ class Settings:
     @staticmethod
     def printHyperparameters():
         print("*"*100)
-        print("* Hyperparameters")
-        print("* ---------------")
-        print("Learning Rate  ", Settings.lr)
-        print("Batch Size     ", Settings.minibatch_size)
-        print("Epochs         ", Settings.epochs)
-        print("Momentum       ", Settings.momentum)
+        filepath = Settings.pathOutput + "hyperparameters.txt"
+        file = open(filepath, "w+")
+        Settings.outputLine(file, "* Hyperparameters")
+        Settings.outputLine(file, "* ---------------")
+        Settings.outputLine(file, "Learning Rate       " + str(Settings.lr))
+        Settings.outputLine(file, "Learning Rate decay " + str(Settings.lr_d))
+        Settings.outputLine(file, "Learning step decay " + str(Settings.schedule))
+        Settings.outputLine(file, "Batch Size          " + str(Settings.minibatch_size))
+        Settings.outputLine(file, "Epochs              " + str(Settings.epochs))
+        Settings.outputLine(file, "Momentum            " + str(Settings.momentum))
         if Settings.drop_prob1 == 0 and Settings.drop_prob2 == 0:
-            print("!! No Drop out")
+            Settings.outputLine(file, "!! No Drop out")
             Settings.dropout = False
-        else:
-            print("Dropout Rates   ", Settings.drop_prob1, " and ", Settings.drop_prob2)
+        else:   
+            Settings.outputLine(file, "Dropout Rates   " + str(Settings.drop_prob1) + " and " + str(Settings.drop_prob2))
             Settings.dropout = True
+            
         if Settings.l2 == 0:
-            print("!! No L2 weight decay")
-        else:
-            print("L2 weight decay", Settings.l2)
+            Settings.outputLine(file, "!! No L2 weight decay")
+        else:   
+            Settings.outputLine(file, "L2 weight decay " + str(Settings.l2)) 
 
-        print("Output files are located in the folder ", Settings.pathOutput)
+        Settings.outputLine(file, "Output files are located in the folder " + Settings.pathOutput)
 
-class ImageSize:
-    width = 100
-    height = 100
-
-class Emotion:
-    num_classes = 0
-    class_dict = {}
-    idx2class = {}
+    @staticmethod
+    def outputLine(file, message):
+        file.write(message + "\n")
+        print(message)
