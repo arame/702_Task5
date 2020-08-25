@@ -126,13 +126,10 @@ class ANN2L(object):
  
         t= 0 # time -step for adam optimizer
         lr = Settings.lr
-        for i in range(Settings.epochs):
-            if  i == Settings.schedule:
-                for i in range(Settings.schedule, Settings.epochs, Settings.schedule):
+        for epoch in range(Settings.epochs):
+            if epoch > Settings.lr_update_start:
+                if  epoch % Settings.schedule == 0 and lr > 0.00001:
                     lr = lr*Settings.lr_d
-            
-                    if lr <= 0.00001:
-                        break
             
             # iterate over minibatches
             indices = np.arange(X_train.shape[0])
@@ -346,7 +343,7 @@ class ANN2L(object):
 
             print('%0*d/%d | Train cost: %.2f ''| Train/Valid Acc.: %.2f%%/%.2f%% '
                               '|Test Acc.: %.2f%%''| L rate.: %.5f '%
-                            (epoch_strlen, i+1, Settings.epochs, cost, train_acc*100, valid_acc*100, test_acc*100, lr))
+                            (epoch_strlen, epoch+1, Settings.epochs, cost, train_acc*100, valid_acc*100, test_acc*100, lr))
 
             self.eval_['cost'].append(cost)
             self.eval_['train_acc'].append(train_acc)

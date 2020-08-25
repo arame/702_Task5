@@ -11,18 +11,19 @@ class Settings:
     minibatch_size = 32
     epochs = 350
     lr = 0.005
-    lr_d = 0.6
-    schedule = 80
-    momentum = 0
+    lr_d = 0.85
+    lr_update_start = 50
+    schedule = 10
+    momentum = 0.9
     seed = 42
     shuffle=True
     weights_init = "trunc_norm"
-    optimizer = "sgd"
+    optimizer = "sgd_mo"
     hidden_n =[300, 200]
     l2 = 0             # -L2 weight decay and dropout cannot be run at the same time (usually 0.0001)
     dropout = True     # The code will set it to True if dropoutRate > 0
-    drop_prob1= 0.5
-    drop_prob2= 0.5
+    drop_prob1= 0.1
+    drop_prob2= 0.1
 
     @staticmethod
     def start():
