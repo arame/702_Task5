@@ -375,7 +375,7 @@ class ANN2L(object):
             
     def precision(self, y, conf_matrix):
         col = conf_matrix[:, y]
-        return conf_matrix[y, y] / col.sum()
+        return np.nan_to_num(conf_matrix[y, y] / col.sum())
       
     def recall(self, y, conf_matrix):
         row = conf_matrix[y, :]
@@ -391,7 +391,7 @@ class ANN2L(object):
                                np.sum(self.w_out ** 2.)) 
         ind = np.argmax(y_enc, axis = 1).astype(int)
         pred_probability = output[np.arange(len(output)), ind]
-        log_preds = np.log(pred_probability)
+        log_preds = np.nan_to_num(np.log(pred_probability))
         loss = -1.0 * np.sum(log_preds) / len(log_preds)
         loss+= L2_reg
         return loss
@@ -434,8 +434,8 @@ class ANN2L(object):
         return np.where(z <= 0, z*0.01, 1)
   
     def _softmax(self,z):
-        exp = np.exp(z )
-        partition = np.sum(np.exp(z), axis=1, keepdims = True )
+        exp = np.nan_to_num(np.exp(z ))
+        partition = np.sum(np.nan_to_num(np.exp(z)), axis=1, keepdims = True )
         
         return exp/partition
 

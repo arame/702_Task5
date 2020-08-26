@@ -14,16 +14,16 @@ class Settings:
     lr_d = 0.85
     lr_update_start = 50
     schedule = 10
-    momentum = 0.9
+    momentum = 0
     seed = 42
     shuffle=True
     weights_init = "trunc_norm"
-    optimizer = "sgd_mo"
+    optimizer = "adam"
     hidden_n =[300, 200]
-    l2 = 0             # -L2 weight decay and dropout cannot be run at the same time (usually 0.0001)
-    dropout = True     # The code will set it to True if dropoutRate > 0
-    drop_prob1= 0.1
-    drop_prob2= 0.1
+    l2 = 0.0001             # -L2 weight decay and dropout cannot be run at the same time (usually 0.0001)
+    dropout = False     # The code will set it to True if dropoutRate > 0
+    drop_prob1= 0
+    drop_prob2= 0
 
     @staticmethod
     def start():
